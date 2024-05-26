@@ -1,0 +1,23 @@
+version: "3.11"
+services:
+  db:
+    image: postgres
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    env_file: db.env
+    container_name: signal_bot_db
+
+  web:
+    build: .
+    volumes:
+      - .:/code
+    ports:
+      - 8000:8000
+    image: signal_bot:middleware
+    env_file: django.env
+    container_name: signal_bot_db_middleware
+    command: python manage.py runserver 0.0.0.0:8000
+    stdin_open: true
+    tty: true
+    depends_on:
+      - db
