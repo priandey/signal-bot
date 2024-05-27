@@ -22,7 +22,7 @@ class SignalClient:
         }
 
         accounts_request = requests.get(
-            self.url,
+            self.url + "/v1/accounts",
             timeout=settings.REQUESTS_TIMEOUT_SECONDS,
         )
         accounts_request.raise_for_status()
