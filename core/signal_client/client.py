@@ -69,7 +69,7 @@ class SignalClient:
                             source_user=self.user,
                             text_context=message["message"],
                             raw_content=item,
-                            received_at=datetime.fromtimestamp(message["timestamp"], timezone.utc),
+                            received_at=datetime.fromtimestamp(message["timestamp"] / 1000, timezone.utc),
                             is_incoming=True,
                         )
                     )
