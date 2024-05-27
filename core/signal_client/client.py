@@ -1,10 +1,11 @@
-from datetime import datetime, timezone
 import logging
+from datetime import datetime
 from typing import Any, Collection, Dict, List
-from django.utils import timezone
-from django.db.transaction import atomic
+
 import requests
 from django.conf import settings
+from django.db.transaction import atomic
+from django.utils import timezone
 
 from core.models.signal_group import SignalGroup
 from core.models.signal_message import SignalMessage
@@ -65,8 +66,8 @@ class SignalClient:
                     messages_to_create.append(
                         SignalMessage(
                             target_group_id=message.get("groupInfo", {}).get("groupId"),
-                            target_user_id=envelope["sourceNumber"],
-                            source_user=self.user,
+                            target_user_id=self.user,
+                            source_user=envelope["sourceNumber"],
                             text_content=message["message"],
                             raw_content=item,
                             received_at=datetime.fromtimestamp(message["timestamp"] / 1000, timezone.utc),

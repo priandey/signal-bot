@@ -15,6 +15,20 @@ class SignalMessage(models.Model):
                 ],
                 name="unique_together_group_user_received"
             ),
+            models.CheckConstraint(
+                check=(
+                    models.Q(
+                        models.Q(
+                            models.Q(target_user__isnull=True) & models.Q(target_group__isnull=False)
+                        )
+                        | models.Q(
+                            models.Q(target_user__isnull=True) & models.Q(target_group__isnull=False)
+                        )
+                    )
+                ),
+                name="only_one_target_allowed",
+                violation_error_message="Only one of target_group and target_user field can be set"
+            ),
         ]
 
     target_group = models.ForeignKey(
@@ -28,6 +42,7 @@ class SignalMessage(models.Model):
     target_user = models.ForeignKey(
         to=SignalUser,
         verbose_name="Source User",
+        null=True,
         related_name="received_messages",
         on_delete=models.PROTECT,
     )
