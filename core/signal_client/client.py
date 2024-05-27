@@ -22,7 +22,7 @@ class SignalClient:
         }
 
         accounts_request = requests.get(
-            self.url,
+            self.url + "/v1/accounts",
             timeout=settings.REQUESTS_TIMEOUT_SECONDS,
         )
         accounts_request.raise_for_status()
@@ -65,17 +65,17 @@ class SignalClient:
                     messages_to_create.append(
                         SignalMessage(
                             target_group_id=message.get("groupInfo", {}).get("groupId"),
-                            target_user_id=envelope["source_number"],
+                            target_user_id=envelope["sourceNumber"],
                             source_user=self.user,
                             text_context=message["message"],
                             raw_content=item,
-                            received_at=datetime.fromtimestamp(message["timestamp"], timezone.utc),
+                            received_at=datetime.fromtimestamp(message["timestamp"] / 1000, timezone.utc),
                             is_incoming=True,
                         )
                     )
 
                     user_infos.setdefault(
-                        envelope["source_number"],
+                        envelope["sourceNumber"],
                         {
                             "source_name": envelope["sourceName"],
                             "display_name": envelope["sourceName"],
