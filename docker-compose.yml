@@ -6,6 +6,10 @@ services:
       - ./data/db:/var/lib/postgresql/data
     env_file: db.env
     container_name: signal_bot_db
+    networks:
+      localNetwork:
+        aliases:
+          - db
 
   web:
     build: .
@@ -21,3 +25,14 @@ services:
     tty: true
     depends_on:
       - db
+    networks:
+      signal-cli-rest-api_signal-cli-network:
+        aliases:
+          - bot
+      localNetwork:
+        aliases:
+          - web
+networks:
+  signal-cli-rest-api_signal-cli-network:
+    external: true
+  localNetwork:
