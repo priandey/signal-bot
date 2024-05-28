@@ -1,0 +1,11 @@
+# Use the official Python image from the Docker Hub
+FROM python:3.11-slim
+
+# Set the working directory in the container
+WORKDIR /code
+
+# Install the required Python packages
+COPY requirements.txt requirements.txt
+
+# Run the Python script when the container launches
+RUN python3 -m pip install -r requirements.txt

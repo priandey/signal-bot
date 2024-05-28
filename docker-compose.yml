@@ -6,15 +6,21 @@ services:
       - ./data/db:/var/lib/postgresql/data
     env_file: db.env
     container_name: signal_bot_db
-    networks:
-      localNetwork:
-        aliases:
-          - db
+
+  signal-cli:
+    image: registry.gitlab.com/packaging/signal-cli/signal-cli-native:latest
+    command: "daemon --http 0.0.0.0:7583"
+    ports:
+      - "7583:7583"
+    volumes:
+      - ${SIGNAL_CONFIG_VOLUME}:/var/lib/signal-cli
+    tmpfs:
+      - "/tmp:exec"
 
   web:
-    build: .
+    build: ./server
     volumes:
-      - .:/code
+      - ./server:/code
     ports:
       - 8000:8000
     image: signal_bot:middleware
@@ -25,14 +31,16 @@ services:
     tty: true
     depends_on:
       - db
-    networks:
-      signal-cli-rest-api_signal-cli-network:
-        aliases:
-          - bot
-      localNetwork:
-        aliases:
-          - web
-networks:
-  signal-cli-rest-api_signal-cli-network:
-    external: true
-  localNetwork:
+      - signal-cli
+
+  sse-client:
+    build: ./sse_client
+    volumes:
+      - ./sse_client:/code
+    image: signal_bot:sse_client
+    container_name: signal_bot_sse_client
+    command: python client.py
+    depends_on:
+      - web
+      - signal-cli
+
