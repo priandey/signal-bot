@@ -5,9 +5,9 @@ services:
     ports:
       - "7583:7583"
     volumes:
-      - "./signal_config/:/var/lib/signal-cli/"
+      - "/data/coolify/applications/${APP_ID}/signal_config/:/var/lib/signal-cli/"
     tmpfs:
-      - "./tmp:exec"
+      - "/data/coolify/applications/${APP_ID}/tmp:exec"
 
   web:
     build: ./server
