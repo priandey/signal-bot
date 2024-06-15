@@ -37,4 +37,5 @@ services:
       - signal-cli
 networks:
   signal-notifier:
+    name: signal-notifier
     external: true
