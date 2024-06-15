@@ -3,7 +3,7 @@ services:
   db:
     image: postgres
     volumes:
-      - ./data/db:/var/lib/postgresql/data
+      - ./data/db/:/var/lib/postgresql/data/
     env_file: db.env
     container_name: signal_bot_db
 
@@ -13,14 +13,14 @@ services:
     ports:
       - "7583:7583"
     volumes:
-      - "/data/coolify/applications/q0cco80/signal_config:/var/lib/signal-cli"
+      - "/data/coolify/applications/${APP_ID}/signal_config/:/var/lib/signal-cli/"
     tmpfs:
       - "/tmp:exec"
 
   web:
     build: ./server
     volumes:
-      - ./server:/code
+      - ./server/:/code/
     ports:
       - 8005:8000
     image: signal_bot:middleware
@@ -36,7 +36,7 @@ services:
   sse-client:
     build: ./sse_client
     volumes:
-      - ./sse_client:/code
+      - ./sse_client/:/code/
     image: signal_bot:sse_client
     container_name: signal_bot_sse_client
     command: python client.py
