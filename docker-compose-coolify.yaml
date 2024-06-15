@@ -25,7 +25,7 @@ services:
       - 8015:8000
     image: signal_bot:middleware
     container_name: signal_bot_db_middleware
-    command: python manage.py migrate && gunicorn project.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn project.wsgi:application --bind 0.0.0.0:8000
     stdin_open: true
     tty: true
     depends_on:
@@ -41,7 +41,3 @@ services:
     depends_on:
       - web
       - signal-cli
-networks:
-  signal-notifier:
-    name: signal-notifier
-    external: true
