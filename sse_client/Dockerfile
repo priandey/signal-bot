@@ -5,7 +5,7 @@ FROM python:3.11-slim
 WORKDIR /sse
 
 # Install the required Python packages
-COPY . /sse
+COPY . .
 
 # Run the Python script when the container launches
 RUN python3 -m pip install -r requirements.txt

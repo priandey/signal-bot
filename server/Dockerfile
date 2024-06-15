@@ -3,6 +3,6 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-COPY . /sse
+COPY . .
 
 RUN python3 -m pip install -r requirements.txt
