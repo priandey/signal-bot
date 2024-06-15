@@ -13,7 +13,7 @@ services:
     ports:
       - "7583:7583"
     volumes:
-      - "/data/coolify/applications/${COOLIFY_CONTAINER_NAME}/signal_config:/var/lib/signal-cli"
+      - "/data/coolify/applications/q0cco80/signal_config:/var/lib/signal-cli"
     tmpfs:
       - "/tmp:exec"
 
@@ -22,7 +22,7 @@ services:
     volumes:
       - ./server:/code
     ports:
-      - 8000:8000
+      - 8005:8000
     image: signal_bot:middleware
     env_file: django.env
     container_name: signal_bot_db_middleware
