@@ -43,3 +43,6 @@ services:
     depends_on:
       - web
       - signal-cli
+networks:
+  signal-notifier:
+    external: true
