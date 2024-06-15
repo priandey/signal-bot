@@ -2,7 +2,7 @@
 FROM python:3.11-slim
 
 # Set the working directory in the container
-WORKDIR /code
+WORKDIR /sse
 
 # Install the required Python packages
 COPY requirements.txt requirements.txt

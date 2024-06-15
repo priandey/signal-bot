@@ -1,7 +1,7 @@
 FROM --platform=linux/amd64 python:3.11
 ENV PYTHONUNBUFFERED=1
 
-WORKDIR /code
+WORKDIR /app
 
 COPY requirements.txt requirements.txt
 
