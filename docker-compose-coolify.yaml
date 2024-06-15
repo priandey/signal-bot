@@ -1,9 +1,17 @@
 services:
+  db:
+    image: postgres
+    volumes:
+      - /data/coolify/applications/as8w0cc/data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+    container_name: signal_bot_db
+
   signal-cli:
     image: registry.gitlab.com/packaging/signal-cli/signal-cli-native:latest
     command: "daemon --http 0.0.0.0:7583"
-    networks:
-      - signal-notifier
     ports:
       - "7583:7583"
     volumes:
@@ -15,8 +23,6 @@ services:
     build: ./server
     ports:
       - 8015:8000
-    networks:
-      - signal-notifier
     image: signal_bot:middleware
     container_name: signal_bot_db_middleware
     command: python manage.py migrate && gunicorn project.wsgi:application --bind 0.0.0.0:8000
