@@ -2,6 +2,8 @@ services:
   signal-cli:
     image: registry.gitlab.com/packaging/signal-cli/signal-cli-native:latest
     command: "daemon --http 0.0.0.0:7583"
+    networks:
+      - signal-notifier
     ports:
       - "7583:7583"
     volumes:
@@ -13,6 +15,8 @@ services:
     build: ./server
     ports:
       - 8015:8000
+    networks:
+      - signal-notifier
     image: signal_bot:middleware
     container_name: signal_bot_db_middleware
     command: python manage.py migrate && gunicorn project.wsgi:application --bind 0.0.0.0:8000
@@ -23,6 +27,8 @@ services:
 
   sse-client:
     build: ./sse_client
+    networks:
+      - signal-notifier
     image: signal_bot:sse_client
     container_name: signal_bot_sse_client
     command: python client.py
