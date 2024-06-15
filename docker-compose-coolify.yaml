@@ -1,32 +1,21 @@
-version: "3.11"
 services:
-  db:
-    image: postgres
-    volumes:
-      - ./data/db/:/var/lib/postgresql/data/
-    env_file: db.env
-    container_name: signal_bot_db
-
   signal-cli:
     image: registry.gitlab.com/packaging/signal-cli/signal-cli-native:latest
     command: "daemon --http 0.0.0.0:7583"
     ports:
       - "7583:7583"
     volumes:
-      - "/data/coolify/applications/${APP_ID}/signal_config/:/var/lib/signal-cli/"
+      - "./signal_config/:/var/lib/signal-cli/"
     tmpfs:
-      - "/tmp:exec"
+      - "./tmp:exec"
 
   web:
     build: ./server
-    volumes:
-      - ./server/:/code/
     ports:
-      - 8005:8000
+      - 8015:8000
     image: signal_bot:middleware
-    env_file: django.env
     container_name: signal_bot_db_middleware
-    command: python manage.py runserver 0.0.0.0:8000
+    command: python manage.py migrate && gunicorn project.wsgi:application --bind 0.0.0.0:8000
     stdin_open: true
     tty: true
     depends_on:
@@ -35,8 +24,6 @@ services:
 
   sse-client:
     build: ./sse_client
-    volumes:
-      - ./sse_client/:/code/
     image: signal_bot:sse_client
     container_name: signal_bot_sse_client
     command: python client.py
