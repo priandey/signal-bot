@@ -13,7 +13,7 @@ services:
     ports:
       - "7583:7583"
     volumes:
-      - ${SIGNAL_CONFIG_PATH}:/var/lib/signal-cli
+      - "${SIGNAL_CONFIG_PATH}:/var/lib/signal-cli"
     tmpfs:
       - "/tmp:exec"
 
@@ -43,4 +43,3 @@ services:
     depends_on:
       - web
       - signal-cli
-
