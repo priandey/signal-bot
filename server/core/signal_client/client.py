@@ -1,6 +1,8 @@
 import logging
 from datetime import datetime
-from typing import Any, Collection, Dict, List
+import re
+from uuid import uuid4
+from typing import Any, Collection, Dict, List, Optional, Tuple
 
 import requests
 from django.conf import settings
@@ -10,8 +12,17 @@ from django.utils import timezone
 from core.models.signal_group import SignalGroup
 from core.models.signal_message import SignalMessage
 from core.models.signal_user import SignalUser
+from core.signal_client.utils import utf16_len
 
 logger = logging.getLogger("SignalClient")
+
+STYLE_CHAR = {
+    "*": "ITALIC",
+    "#": "BOLD",
+    "~": "STRIKETHROUGH",
+    "|": "SPOILER",
+    "_": "MONOSPACE",
+}
 
 
 class SignalClient:
@@ -22,13 +33,21 @@ class SignalClient:
             "Accept": "application/json",
         }
 
-        accounts_request = requests.get(
-            self.url + "/v1/accounts",
+        accounts_request = requests.post(
+            self.url + "/api/v1/rpc",
             timeout=settings.REQUESTS_TIMEOUT_SECONDS,
+            json={
+                "jsonrpc": "2.0",
+                "method": "listAccounts",
+                "id": str(uuid4())
+            }
         )
         accounts_request.raise_for_status()
-
-        if signal_user.source_number not in accounts_request.json():
+        remote_registered_accounts = [
+            account["number"]
+            for account in accounts_request.json()["result"]
+        ]
+        if signal_user.source_number not in remote_registered_accounts:
             raise ValueError("Provided user is not registered in the signal client")
 
         if not signal_user.is_registered:
@@ -38,6 +57,7 @@ class SignalClient:
         self.user = signal_user
 
     def receive_messages(self) -> Collection[SignalMessage]:
+        raise NotImplementedError("")
         response = requests.get(
             self.url + "/v1/receive/" + self.user.source_number,
             params={
@@ -110,24 +130,27 @@ class SignalClient:
         return []
 
     def send_message(self, message: str, recipients: List[SignalUser | SignalGroup]) -> Collection[SignalMessage]:
-        request_payload = {
-            "message": message,
-            "recipients": [
-                recipient.source_number
-                if isinstance(recipient, SignalUser)
-                else recipient.signal_id
-                for recipient in recipients
-            ],
-            "text_mode": "styled",
-            "number": self.user.source_number,
-        }
+        message_content, message_styles = SignalClient.parse_message_style(message)
+        for recipient in recipients:
+            recipient_id = recipient.source_number if isinstance(recipient, SignalUser) else recipient.signal_id
+            request_payload = {
+                "jsonrpc": "2.0",
+                "method": "send",
+                "params": {
+                    "message": message_content,
+                    "text-style": message_styles,
+                    "recipient": [recipient_id],
+                    "account": self.user.source_number,
+                },
+                "id": str(uuid4()),
+            }
 
-        response = requests.post(
-            url=self.url + "/v2/send/",
-            timeout=settings.REQUESTS_TIMEOUT_SECONDS,
-            json=request_payload,
-        )
-        response.raise_for_status()
+            response = requests.post(
+                url=self.url + "/api/v1/rpc",
+                timeout=settings.REQUESTS_TIMEOUT_SECONDS,
+                json=request_payload,
+            )
+            response.raise_for_status()
 
         return SignalMessage.objects.bulk_create(
             [
@@ -142,4 +165,43 @@ class SignalClient:
                 )
                 for recipient in recipients
             ]
+        )
+
+    @staticmethod
+    def parse_message_style(message):
+        pattern = r'(\*[^*]+\*|#[^#]+#|~[^~]+~|\|[^\|]+\||_[^_]+\_)'
+        matches = re.findall(pattern, message)
+        style_to_content_tuples = []
+        last_end = 0
+        for match in matches:
+            start = message.find(match, last_end)
+            end = start + len(match)
+
+            if start > last_end:
+                style_to_content_tuples.append(("PLAIN", message[last_end:start]))
+
+            style_char = match[0]
+            style = STYLE_CHAR[style_char]
+
+            style_to_content_tuples.append((style, match[1:-1]))  # Remove the style characters
+            last_end = end
+
+        if last_end < len(message):
+            style_to_content_tuples.append(("PLAIN", message[last_end:]))
+
+        style_directives: List[str] = []
+        text_content = ""
+        current_index = 0
+        for style, content in style_to_content_tuples:
+            if style != "PLAIN":
+                style_directives.append(
+                    f"{current_index}:{utf16_len(content)}:{style}"
+                )
+
+            current_index += utf16_len(content)
+            text_content = text_content + content
+
+        return (
+            text_content,
+            style_directives
         )

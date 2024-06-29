@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
+    "weather_bot"
 ]
 
 MIDDLEWARE = [
@@ -81,7 +82,7 @@ DATABASES = {
         'NAME': os.getenv("POSTGRES_DB"),
         'USER': os.getenv("POSTGRES_USER"),
         'PASSWORD': os.getenv("POSTGRES_PASSWORD"),
-        'HOST': 'db',
+        'HOST': os.getenv("POSTGRES_HOST", 'db'),
         'PORT': 5432,
     }
 }
@@ -132,3 +133,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SIGNAL_URL = os.getenv("SIGNAL_URL", "")
 REQUESTS_TIMEOUT_SECONDS = 30.0
+MAIN_BOT_ACCOUNT_SOURCE_NUMBER = os.getenv("MAIN_BOT_ACCOUNT_SOURCE_NUMBER")
+
+# WEATHER BOT SETTING
+INFO_CLIMAT_API_KEY = os.getenv("INFO_CLIMAT_API_KEY", "")
+INFO_CLIMAT_API_KEYRING_ID = os.getenv("INFO_CLIMAT_API_KEYRING_ID", "")

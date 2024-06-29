@@ -19,7 +19,7 @@ class SignalMessage(models.Model):
                 check=(
                     models.Q(
                         models.Q(
-                            models.Q(target_user__isnull=True) & models.Q(target_group__isnull=False)
+                            models.Q(target_user__isnull=False) & models.Q(target_group__isnull=True)
                         )
                         | models.Q(
                             models.Q(target_user__isnull=True) & models.Q(target_group__isnull=False)

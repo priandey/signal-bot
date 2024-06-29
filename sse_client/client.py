@@ -11,9 +11,7 @@ def read_sse(sse_url, server_endpoint):
 
         for line in response.iter_lines(decode_unicode=True):
             if line:
-                # Assuming the event data is in JSON format
                 try:
-                    # Process the event data as needed
                     event_data = json.loads(line.lstrip("data:"))
                     requests.post(server_endpoint, json=event_data)
                 except json.JSONDecodeError:
