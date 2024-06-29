@@ -16,14 +16,19 @@ class Command(BaseCommand):
         if user_password is None:
             raise CommandError("No `ADMIN_PASSWORD` found in environment")
 
-        user = get_user_model()(
-            email=user_email,
+        user, _created = get_user_model().objects.update_or_create(
             username=user_email,
+            email=user_email,
+            defaults={
+                "is_staff": True,
+                "is_superuser": True,
+                "is_active": True,
+            }
         )
 
         user.set_password(user_password)
         user.save()
 
         self.stdout.write(
-            self.style.SUCCESS(f'Successfully created user "{user.email}"')
+            self.style.SUCCESS(f'Successfully {"created" if _created else "updated"} user "{user.email}"')
         )
