@@ -26,8 +26,8 @@ services:
     image: signal_bot:middleware
     container_name: signal_bot_db_middleware
     volumes:
-      - "/data/coolify/applications/as8w0cc/static/ -> /app/static/"
-      - "/data/coolify/applications/as8w0cc/media/ -> /app/media/"
+      - "/data/coolify/applications/as8w0cc/static/:/app/static/"
+      - "/data/coolify/applications/as8w0cc/media/:/app/media/"
     command: gunicorn project.wsgi:application --bind 0.0.0.0:8000
     stdin_open: true
     tty: true
