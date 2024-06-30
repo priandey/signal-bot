@@ -20,7 +20,7 @@ services:
   web:
     build: ./server
     volumes:
-      - ./server:/code
+      - ./server:/app
     ports:
       - 8000:8000
     image: signal_bot:middleware

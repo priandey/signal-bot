@@ -5,6 +5,7 @@ class Forecast(models.Model):
     class Meta:
         indexes = [
             models.Index(fields=['segment_datetime']),
+            models.Index(fields=['latitude', 'longitude']),
         ]
 
         constraints = [
