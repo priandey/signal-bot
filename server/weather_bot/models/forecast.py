@@ -39,3 +39,6 @@ class Forecast(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return f"{self.segment_datetime.strftime('%d/%m/%Y %H')} -> {self.segment_datetime.hour + 3}"
