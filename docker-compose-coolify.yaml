@@ -36,8 +36,6 @@ services:
 
   sse-client:
     build: ./sse_client
-    networks:
-      - signal-notifier
     image: signal_bot:sse_client
     container_name: signal_bot_sse_client
     command: python client.py
