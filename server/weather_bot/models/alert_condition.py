@@ -30,3 +30,8 @@ class WeatherAlertCondition(models.Model):
         choices=WeatherConditionOperator.choices,
         default=WeatherConditionOperator.EQUAL,
     )
+    left_operand = models.CharField(verbose_name="right operand", max_length=255, null=True)
+
+    @property
+    def lookup(self) -> models.Q:
+        return models.Q(**{f"{self.right_operand}__{self.operator}": f"{self.left_operand}"})
